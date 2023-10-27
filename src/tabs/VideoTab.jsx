@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import {
   Button, Center, Divider, Group, Modal,
-  Pagination, rem, Select, Table, Text, Textarea, TextInput, UnstyledButton
+  Pagination, rem, Select, Table, Text, Textarea, UnstyledButton
 } from "@mantine/core";
 import axios from "axios";
 import { useDisclosure } from "@mantine/hooks";
 import { IconChevronDown, IconChevronUp, IconSelector } from "@tabler/icons-react";
+import VideoFilter from "../components/VideoFilter.jsx";
 
 const varietyMap = {
   "UK": "🇬🇧 UK",
@@ -45,6 +46,7 @@ export default function VideoTab() {
   const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(10);
   const [sort, setSort] = useState({ field: 'id', dir: 'asc' });
+  const [filters, setFilters] = useState({});
   const [currentVideo, setCurrentVideo] = useState();
   const [subtitlesShown, subtitlesHandlers] = useDisclosure(false);
 
@@ -55,13 +57,14 @@ export default function VideoTab() {
           page: activePage - 1,
           size: pageSize,
           sort: sort.field + ',' + sort.dir,
+          ...filters
         }
       })
       .then((r) => {
         setVideos(r.data.content);
         setTotalPages(r.data.totalPages);
       })
-  }, [activePage, pageSize, sort]);
+  }, [activePage, pageSize, sort, filters]);
 
   const rows = videos.map((video) => (
     <Table.Tr key={video.id}>
@@ -97,21 +100,16 @@ export default function VideoTab() {
             defaultValue={10}
             data={[10, 25, 50, 100]}
             allowDeselect={false}
-            onChange={setPageSize}
+            onChange={value => {
+              setActivePage(1);
+              setPageSize(value);
+            }}
           />
           <Divider orientation="vertical" />
-          <Group>
-            <TextInput w={100} placeholder={"ID"}/>
-            <TextInput w={200} placeholder={"Video ID"}/>
-            <Select
-              w={100}
-              placeholder="Pick value"
-              defaultValue="ALL"
-              data={['ALL', 'UK', 'US', 'AUS']}
-              allowDeselect={false}
-            />
-            <Button variant="light" color="gray">Search</Button>
-          </Group>
+          <VideoFilter onSubmit={values => {
+            setActivePage(1);
+            setFilters(values);
+          }} />
           <Divider orientation="vertical" />
           <Button variant="light" color="green">Add Video</Button>
           <Divider orientation="vertical" />
