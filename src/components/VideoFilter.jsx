@@ -5,8 +5,8 @@ import { Button, Group, NumberInput, Select, TextInput } from "@mantine/core";
 export default function VideoFilter({ onSubmit }) {
   const form = useForm({
     initialValues: {
-      id: null,
-      videoId: null,
+      id: '',
+      videoId: '',
       variety: 'ALL',
     }
   });

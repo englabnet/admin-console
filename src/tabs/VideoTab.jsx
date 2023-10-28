@@ -7,6 +7,7 @@ import axios from "axios";
 import { useDisclosure } from "@mantine/hooks";
 import VideoFilter from "../components/VideoFilter.jsx";
 import SortableTh from "../components/SortableTh.jsx";
+import IndexingInfoDialog from "../components/IndexingInfoDialog.jsx";
 
 const varietyMap = {
   "UK": "🇬🇧 UK",
@@ -21,6 +22,7 @@ export default function VideoTab() {
   const [sort, setSort] = useState({ field: 'id', dir: 'asc' });
   const [filters, setFilters] = useState({});
   const [currentVideo, setCurrentVideo] = useState();
+  const [statusShown, statusHandlers] = useDisclosure(false);
   const [subtitlesShown, subtitlesHandlers] = useDisclosure(false);
 
   useEffect(() => {
@@ -69,8 +71,8 @@ export default function VideoTab() {
         <Group justify="space-between">
           <Button variant="light" color="green">Add Video</Button>
           <Group>
-            <Button variant="light" color="blue">Full Reindexing</Button>
-            <Button variant="light" color="yellow">Status</Button>
+            <Button variant="light" color="blue">Index</Button>
+            <Button variant="light" color="yellow" onClick={statusHandlers.open}>Status</Button>
           </Group>
         </Group>
         <Divider m={0}/>
@@ -112,6 +114,7 @@ export default function VideoTab() {
       <Center p={10}>
         <Pagination value={activePage} onChange={setActivePage} total={response?.totalPages} />
       </Center>
+      <IndexingInfoDialog opened={statusShown} onClose={statusHandlers.close}/>
       <Modal opened={subtitlesShown} onClose={subtitlesHandlers.close} title="Subtitles" centered size="50%">
         <Textarea
           autosize
