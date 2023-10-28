@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import {
   Button, Center, Divider, Group, Modal,
-  Pagination, rem, Select, Table, Text, Textarea, UnstyledButton
+  Pagination, Select, Stack, Table, Text, Textarea,
 } from "@mantine/core";
 import axios from "axios";
 import { useDisclosure } from "@mantine/hooks";
-import { IconChevronDown, IconChevronUp, IconSelector } from "@tabler/icons-react";
 import VideoFilter from "../components/VideoFilter.jsx";
+import SortableTh from "../components/SortableTh.jsx";
 
 const varietyMap = {
   "UK": "🇬🇧 UK",
@@ -14,37 +14,10 @@ const varietyMap = {
   "AUS": "🇦🇺 AUS",
 }
 
-function Th({ children, field, sort, setSort }) {
-  const sorted = sort.field === field;
-  const Icon = sorted ? (sort.dir === 'asc' ? IconChevronUp : IconChevronDown) : IconSelector;
-  return (
-    <Table.Th>
-      <UnstyledButton onClick={() => {
-        if (sort.field === field) {
-          const dir = sort.dir === 'asc' ? 'desc' : 'asc';
-          setSort({field: field, dir: dir});
-        } else {
-          setSort({field: field, dir: 'asc'});
-        }
-      }}>
-        <Group justify="space-between">
-          <Text fw={500} fz="sm">
-            {children}
-          </Text>
-          <Center>
-            <Icon style={{ width: rem(16), height: rem(16) }} stroke={1.5} />
-          </Center>
-        </Group>
-      </UnstyledButton>
-    </Table.Th>
-  );
-}
-
 export default function VideoTab() {
-  const [videos, setVideos] = useState([]);
+  const [response, setResponse] = useState();
   const [activePage, setActivePage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [totalPages, setTotalPages] = useState(10);
   const [sort, setSort] = useState({ field: 'id', dir: 'asc' });
   const [filters, setFilters] = useState({});
   const [currentVideo, setCurrentVideo] = useState();
@@ -61,12 +34,11 @@ export default function VideoTab() {
         }
       })
       .then((r) => {
-        setVideos(r.data.content);
-        setTotalPages(r.data.totalPages);
+        setResponse(r.data);
       })
   }, [activePage, pageSize, sort, filters]);
 
-  const rows = videos.map((video) => (
+  const rows = response?.content?.map((video) => (
     <Table.Tr key={video.id}>
       <Table.Td w={100}>{video.id}</Table.Td>
       <Table.Td w={100}>
@@ -93,10 +65,19 @@ export default function VideoTab() {
 
   return (
     <>
-        <Group p={10}>
+      <Stack p={10} gap="xs">
+        <Group justify="space-between">
+          <Button variant="light" color="green">Add Video</Button>
+          <Group>
+            <Button variant="light" color="blue">Full Reindexing</Button>
+            <Button variant="light" color="yellow">Status</Button>
+          </Group>
+        </Group>
+        <Divider m={0}/>
+        <Group>
           <Text>Page size:</Text>
           <Select
-            w={100}
+            w={80}
             defaultValue={10}
             data={[10, 25, 50, 100]}
             allowDeselect={false}
@@ -111,19 +92,16 @@ export default function VideoTab() {
             setFilters(values);
           }} />
           <Divider orientation="vertical" />
-          <Button variant="light" color="green">Add Video</Button>
-          <Divider orientation="vertical" />
-          <Button variant="light" color="blue">Full Reindex</Button>
-          <Text>Indexing status: Done</Text>
-          <Text>Duration: 4 sec</Text>
+          <Text>Total count: {response?.totalElements}</Text>
         </Group>
+      </Stack>
       <Table highlightOnHover withTableBorder>
         <Table.Thead>
           <Table.Tr>
-            <Th field='id' sort={sort} setSort={setSort}>ID</Th>
+            <SortableTh field='id' sort={sort} setSort={setSort}>ID</SortableTh>
             <Table.Th>Thumbnail</Table.Th>
-            <Th field='videoId' sort={sort} setSort={setSort}>Video ID</Th>
-            <Th field='variety' sort={sort} setSort={setSort}>Variety</Th>
+            <SortableTh field='videoId' sort={sort} setSort={setSort}>Video ID</SortableTh>
+            <SortableTh field='variety' sort={sort} setSort={setSort}>Variety</SortableTh>
             <Table.Th>Subtitles</Table.Th>
             <Table.Th>Edit</Table.Th>
             <Table.Th>Delete</Table.Th>
@@ -132,7 +110,7 @@ export default function VideoTab() {
         <Table.Tbody>{rows}</Table.Tbody>
       </Table>
       <Center p={10}>
-        <Pagination value={activePage} onChange={setActivePage} total={totalPages} />
+        <Pagination value={activePage} onChange={setActivePage} total={response?.totalPages} />
       </Center>
       <Modal opened={subtitlesShown} onClose={subtitlesHandlers.close} title="Subtitles" centered size="50%">
         <Textarea

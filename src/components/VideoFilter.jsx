@@ -2,7 +2,6 @@ import { React } from "react";
 import { useForm } from "@mantine/form";
 import { Button, Group, NumberInput, Select, TextInput } from "@mantine/core";
 
-
 export default function VideoFilter({ onSubmit }) {
   const form = useForm({
     initialValues: {
@@ -18,7 +17,7 @@ export default function VideoFilter({ onSubmit }) {
         <NumberInput w={100} placeholder={"ID"} {...form.getInputProps('id')}/>
         <TextInput w={200} placeholder={"Video ID"} {...form.getInputProps('videoId')}/>
         <Select
-          w={100}
+          w={80}
           defaultValue="ALL"
           data={['ALL', 'UK', 'US', 'AUS']}
           allowDeselect={false}
