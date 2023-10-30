@@ -4,7 +4,7 @@ import axios from "axios";
 import moment from "moment/moment";
 
 const statusToColor = {
-  NONE: "gray",
+  NONE: "white",
   STARTED: "yellow",
   COMPLETED: "green",
   FAILED: "red",
@@ -24,37 +24,44 @@ export default function IndexingInfoDialog({ opened, onClose }) {
       })
   }, [opened]);
 
-  const startTime = info && moment(info.startTime);
+  const startTime = info?.startTime ? moment(info.startTime) : null;
   const finishTime = info?.finishTime ? moment(info.finishTime) : null;
+  const duration = startTime && finishTime ? moment.duration(startTime, finishTime).humanize() : null;
 
   return(
     <Modal opened={opened} onClose={onClose} centered title="Indexing Info">
       {info && (
         <Stack gap="xs">
-          <Group gap="xs">
-            <Text>
-              Start time:
-            </Text>
-            <Text>
-              {startTime.local().format(timeFormat)}
-            </Text>
-          </Group>
-          <Group gap="xs">
-            <Text>
-              Finish time:
-            </Text>
-            <Text>
-              {finishTime && finishTime.local().format(timeFormat)}
-            </Text>
-          </Group>
-          <Group gap="xs">
-            <Text>
-              Duration:
-            </Text>
-            <Text>
-              {finishTime && moment.duration(startTime, finishTime).humanize()}
-            </Text>
-          </Group>
+          {startTime && (
+            <Group gap="xs">
+              <Text>
+                Start time:
+              </Text>
+              <Text>
+                {startTime.local().format(timeFormat)}
+              </Text>
+            </Group>
+          )}
+          {finishTime && (
+            <Group gap="xs">
+              <Text>
+                Finish time:
+              </Text>
+              <Text>
+                {finishTime.local().format(timeFormat)}
+              </Text>
+            </Group>
+          )}
+          {duration && (
+            <Group gap="xs">
+              <Text>
+                Duration:
+              </Text>
+              <Text>
+                {finishTime && moment.duration(startTime, finishTime).humanize()}
+              </Text>
+            </Group>
+          )}
           <Group gap="xs">
             <Text>
               Status:
