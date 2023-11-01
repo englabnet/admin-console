@@ -28,6 +28,7 @@ export default function VideoTab() {
   const [confirmIndexingShown, confirmIndexingHandlers] = useDisclosure(false);
   const [statusShown, statusHandlers] = useDisclosure(false);
   const [subtitlesShown, subtitlesHandlers] = useDisclosure(false);
+  const [confirmDeletingShown, confirmDeletingHandlers] = useDisclosure(false);
 
   const loadVideos = useCallback(() => {
     axios
@@ -65,6 +66,19 @@ export default function VideoTab() {
     });
   };
 
+  const deleteVideo = (videoId) => {
+    axios
+      .post('/api/v1/indexer/remove', null, {
+        params: {
+          videoId: videoId,
+          index: true,
+        }
+      }).then((r) => {
+        console.log(r.data);
+        loadVideos();
+      });
+  };
+
   const startIndexing = () => {
     axios
       .post('/api/v1/indexer/index')
@@ -91,7 +105,10 @@ export default function VideoTab() {
         <Button size="xs" variant="light" color='orange'>Edit</Button>
       </Table.Td>
       <Table.Td w={100}>
-        <Button size="xs" variant="light" color='red'>Delete</Button>
+        <Button size="xs" variant="light" color='red' onClick={() => {
+          setCurrentVideo(video);
+          confirmDeletingHandlers.open();
+        }}>Delete</Button>
       </Table.Td>
     </Table.Tr>
   ));
@@ -156,6 +173,7 @@ export default function VideoTab() {
           value={currentVideo?.srt}
         />
       </Modal>
+      <ConfirmDialog opened={confirmDeletingShown} onClose={confirmDeletingHandlers.close} onConfirm={() => deleteVideo(currentVideo.videoId)} text="Do you really want to delete the video?"/>
     </>
   );
 }
