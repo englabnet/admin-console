@@ -8,6 +8,7 @@ import { useDisclosure } from "@mantine/hooks";
 import VideoFilter from "../components/VideoFilter.jsx";
 import SortableTh from "../components/SortableTh.jsx";
 import IndexingInfoDialog from "../components/IndexingInfoDialog.jsx";
+import ConfirmDialog from "../components/ConfirmDialog.jsx";
 
 const varietyMap = {
   "UK": "🇬🇧 UK",
@@ -22,8 +23,15 @@ export default function VideoTab() {
   const [sort, setSort] = useState({ field: 'id', dir: 'asc' });
   const [filters, setFilters] = useState({});
   const [currentVideo, setCurrentVideo] = useState();
+  const [confirmIndexingShown, confirmIndexingHandlers] = useDisclosure(false);
   const [statusShown, statusHandlers] = useDisclosure(false);
   const [subtitlesShown, subtitlesHandlers] = useDisclosure(false);
+
+  const startIndexing = () => {
+    axios
+      .post('/api/v1/indexer/index')
+      .then((r) => console.log(r.data));
+  };
 
   useEffect(() => {
     axios
@@ -71,7 +79,7 @@ export default function VideoTab() {
         <Group justify="space-between">
           <Button variant="light" color="green">Add Video</Button>
           <Group>
-            <Button variant="light" color="blue">Index</Button>
+            <Button variant="light" color="blue" onClick={confirmIndexingHandlers.open}>Index</Button>
             <Button variant="light" color="yellow" onClick={statusHandlers.open}>Status</Button>
           </Group>
         </Group>
@@ -114,6 +122,7 @@ export default function VideoTab() {
       <Center p={10}>
         <Pagination value={activePage} onChange={setActivePage} total={response?.totalPages} />
       </Center>
+      <ConfirmDialog opened={confirmIndexingShown} onClose={confirmIndexingHandlers.close} onConfirm={startIndexing} text="Do you really want to start indexing?"/>
       <IndexingInfoDialog opened={statusShown} onClose={statusHandlers.close}/>
       <Modal opened={subtitlesShown} onClose={subtitlesHandlers.close} title="Subtitles" centered size="50%">
         <Textarea

@@ -28,7 +28,7 @@ export default function IndexingInfoDialog({ opened, onClose }) {
   const finishTime = info?.finishTime ? moment(info.finishTime) : null;
   const duration = startTime && finishTime ? moment.duration(startTime, finishTime).humanize() : null;
 
-  return(
+  return (
     <Modal opened={opened} onClose={onClose} centered title="Indexing Info">
       {info && (
         <Stack gap="xs">
@@ -80,7 +80,7 @@ export default function IndexingInfoDialog({ opened, onClose }) {
           </Group>
         </Stack>
       )}
-      <Group justify="flex-end">
+      <Group justify="flex-end" mt={20}>
         <Button onClick={onClose}>Close</Button>
       </Group>
     </Modal>
