@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Button, Center, Divider, Group, Modal,
   Pagination, Select, Stack, Table, Text, Textarea,
@@ -9,6 +9,7 @@ import VideoFilter from "../components/VideoFilter.jsx";
 import SortableTh from "../components/SortableTh.jsx";
 import IndexingInfoDialog from "../components/IndexingInfoDialog.jsx";
 import ConfirmDialog from "../components/ConfirmDialog.jsx";
+import VideoDialog from "../components/VideoDialog.jsx";
 
 const varietyMap = {
   "UK": "🇬🇧 UK",
@@ -23,17 +24,12 @@ export default function VideoTab() {
   const [sort, setSort] = useState({ field: 'id', dir: 'asc' });
   const [filters, setFilters] = useState({});
   const [currentVideo, setCurrentVideo] = useState();
+  const [videoShown, videoHandlers] = useDisclosure(false);
   const [confirmIndexingShown, confirmIndexingHandlers] = useDisclosure(false);
   const [statusShown, statusHandlers] = useDisclosure(false);
   const [subtitlesShown, subtitlesHandlers] = useDisclosure(false);
 
-  const startIndexing = () => {
-    axios
-      .post('/api/v1/indexer/index')
-      .then((r) => console.log(r.data));
-  };
-
-  useEffect(() => {
+  const loadVideos = useCallback(() => {
     axios
       .get('/api/v1/indexer/videos', {
         params: {
@@ -47,6 +43,33 @@ export default function VideoTab() {
         setResponse(r.data);
       })
   }, [activePage, pageSize, sort, filters]);
+
+  useEffect(() => {
+    loadVideos();
+  }, [activePage, pageSize, sort, filters, loadVideos]);
+
+  const addVideo = (video) => {
+    axios
+      .post('/api/v1/indexer/add', video.subtitles, {
+        headers: {
+          'Content-Type': 'text/plain;charset=UTF-8'
+        },
+        params: {
+          videoId: video.videoId,
+          variety: video.variety,
+          index: video.index,
+        }
+      }).then((r) => {
+        console.log(r.data);
+        loadVideos();
+    });
+  };
+
+  const startIndexing = () => {
+    axios
+      .post('/api/v1/indexer/index')
+      .then((r) => console.log(r.data));
+  };
 
   const rows = response?.content?.map((video) => (
     <Table.Tr key={video.id}>
@@ -77,7 +100,7 @@ export default function VideoTab() {
     <>
       <Stack p={10} gap="xs">
         <Group justify="space-between">
-          <Button variant="light" color="green">Add Video</Button>
+          <Button variant="light" color="green" onClick={videoHandlers.open}>Add Video</Button>
           <Group>
             <Button variant="light" color="blue" onClick={confirmIndexingHandlers.open}>Index</Button>
             <Button variant="light" color="yellow" onClick={statusHandlers.open}>Status</Button>
@@ -122,6 +145,7 @@ export default function VideoTab() {
       <Center p={10}>
         <Pagination value={activePage} onChange={setActivePage} total={response?.totalPages} />
       </Center>
+      <VideoDialog opened={videoShown} onClose={videoHandlers.close} onSubmit={addVideo}/>
       <ConfirmDialog opened={confirmIndexingShown} onClose={confirmIndexingHandlers.close} onConfirm={startIndexing} text="Do you really want to start indexing?"/>
       <IndexingInfoDialog opened={statusShown} onClose={statusHandlers.close}/>
       <Modal opened={subtitlesShown} onClose={subtitlesHandlers.close} title="Subtitles" centered size="50%">
