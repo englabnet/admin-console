@@ -1,11 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Button, Grid, Group, Modal, Select,
-  Stack, Switch, Textarea, TextInput
+  Stack, Textarea, TextInput
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 
-export default function VideoDialog({ opened, onClose, onSubmit }) {
+export default function VideoDialog({ video, opened, onClose, onSubmit }) {
   const form = useForm({
     initialValues: {
       url: '',
@@ -15,8 +15,18 @@ export default function VideoDialog({ opened, onClose, onSubmit }) {
     }
   });
 
+  useEffect(() => {
+    if (video) {
+      form.setValues({
+        url: 'https://www.youtube.com/watch?v=' + video.videoId,
+        variety: video.variety,
+        srt: video.srt,
+      });
+    }
+  }, [video]);
+
   return (
-    <Modal opened={opened} onClose={onClose} title="Video" centered size="80%">
+    <Modal opened={opened} onClose={onClose} title="Video" centered size="85%">
       <form onSubmit={form.onSubmit(values => {
         values.videoId = values.url.replace(/.*youtube\.com\/watch\?v=/g, '');
         onSubmit(values);
@@ -33,7 +43,6 @@ export default function VideoDialog({ opened, onClose, onSubmit }) {
                 allowDeselect={false}
                 {...form.getInputProps('variety')}
               />
-              <Switch defaultChecked label="Index" {...form.getInputProps('index')}/>
             </Stack>
           </Grid.Col>
           <Grid.Col span={8}>
@@ -41,7 +50,7 @@ export default function VideoDialog({ opened, onClose, onSubmit }) {
               autosize
               minRows={25}
               maxRows={25}
-              {...form.getInputProps('subtitles')}
+              {...form.getInputProps('srt')}
             />
           </Grid.Col>
         </Grid>

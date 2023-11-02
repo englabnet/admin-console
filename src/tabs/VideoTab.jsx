@@ -24,15 +24,16 @@ export default function VideoTab() {
   const [sort, setSort] = useState({ field: 'id', dir: 'asc' });
   const [filters, setFilters] = useState({});
   const [currentVideo, setCurrentVideo] = useState();
-  const [videoShown, videoHandlers] = useDisclosure(false);
+  const [videoAddingShown, videoAddingHandlers] = useDisclosure(false);
   const [confirmIndexingShown, confirmIndexingHandlers] = useDisclosure(false);
   const [statusShown, statusHandlers] = useDisclosure(false);
   const [subtitlesShown, subtitlesHandlers] = useDisclosure(false);
+  const [videoEditingShown, videoEditingHandlers] = useDisclosure(false);
   const [confirmDeletingShown, confirmDeletingHandlers] = useDisclosure(false);
 
   const loadVideos = useCallback(() => {
     axios
-      .get('/api/v1/indexer/videos', {
+      .get('/api/v1/videos', {
         params: {
           page: activePage - 1,
           size: pageSize,
@@ -51,29 +52,26 @@ export default function VideoTab() {
 
   const addVideo = (video) => {
     axios
-      .post('/api/v1/indexer/add', video.subtitles, {
-        headers: {
-          'Content-Type': 'text/plain;charset=UTF-8'
-        },
-        params: {
-          videoId: video.videoId,
-          variety: video.variety,
-          index: video.index,
-        }
-      }).then((r) => {
+      .post('/api/v1/videos', video)
+      .then((r) => {
         console.log(r.data);
         loadVideos();
-    });
+      });
   };
 
-  const deleteVideo = (videoId) => {
+  const editVideo = (id, video) => {
     axios
-      .post('/api/v1/indexer/remove', null, {
-        params: {
-          videoId: videoId,
-          index: true,
-        }
-      }).then((r) => {
+      .put(`/api/v1/videos/${id}`, video)
+      .then((r) => {
+        console.log(r.data);
+        loadVideos();
+      });
+  };
+
+  const deleteVideo = (id) => {
+    axios
+      .delete(`/api/v1/videos/${id}`)
+      .then((r) => {
         console.log(r.data);
         loadVideos();
       });
@@ -102,7 +100,10 @@ export default function VideoTab() {
         }}>Show</Button>
       </Table.Td>
       <Table.Td w={100}>
-        <Button size="xs" variant="light" color='orange'>Edit</Button>
+        <Button size="xs" variant="light" color='orange' onClick={() => {
+          setCurrentVideo(video);
+          videoEditingHandlers.open();
+        }}>Edit</Button>
       </Table.Td>
       <Table.Td w={100}>
         <Button size="xs" variant="light" color='red' onClick={() => {
@@ -117,7 +118,7 @@ export default function VideoTab() {
     <>
       <Stack p={10} gap="xs">
         <Group justify="space-between">
-          <Button variant="light" color="green" onClick={videoHandlers.open}>Add Video</Button>
+          <Button variant="light" color="green" onClick={videoAddingHandlers.open}>Add Video</Button>
           <Group>
             <Button variant="light" color="blue" onClick={confirmIndexingHandlers.open}>Index</Button>
             <Button variant="light" color="yellow" onClick={statusHandlers.open}>Status</Button>
@@ -162,7 +163,7 @@ export default function VideoTab() {
       <Center p={10}>
         <Pagination value={activePage} onChange={setActivePage} total={response?.totalPages} />
       </Center>
-      <VideoDialog opened={videoShown} onClose={videoHandlers.close} onSubmit={addVideo}/>
+      <VideoDialog opened={videoAddingShown} onClose={videoAddingHandlers.close} onSubmit={addVideo}/>
       <ConfirmDialog opened={confirmIndexingShown} onClose={confirmIndexingHandlers.close} onConfirm={startIndexing} text="Do you really want to start indexing?"/>
       <IndexingInfoDialog opened={statusShown} onClose={statusHandlers.close}/>
       <Modal opened={subtitlesShown} onClose={subtitlesHandlers.close} title="Subtitles" centered size="50%">
@@ -173,7 +174,8 @@ export default function VideoTab() {
           value={currentVideo?.srt}
         />
       </Modal>
-      <ConfirmDialog opened={confirmDeletingShown} onClose={confirmDeletingHandlers.close} onConfirm={() => deleteVideo(currentVideo.videoId)} text="Do you really want to delete the video?"/>
+      <VideoDialog video={currentVideo} opened={videoEditingShown} onClose={videoEditingHandlers.close} onSubmit={(video) => editVideo(currentVideo.id, video)}/>
+      <ConfirmDialog opened={confirmDeletingShown} onClose={confirmDeletingHandlers.close} onConfirm={() => deleteVideo(currentVideo.id)} text="Do you really want to delete the video?"/>
     </>
   );
 }
