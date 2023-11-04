@@ -3,6 +3,7 @@ import '@mantine/core/styles.css';
 import { MantineProvider, rem, Tabs } from "@mantine/core";
 import { IconMessageCircle, IconVideo } from "@tabler/icons-react";
 import VideoTab from "./tabs/VideoTab.jsx";
+import FeedbackTab from "./tabs/FeedbackTab.jsx";
 
 function App() {
   const iconStyle = { width: rem(12), height: rem(12) };
@@ -31,7 +32,7 @@ function App() {
         </Tabs.Panel>
 
         <Tabs.Panel value="feedback">
-          Feedback content
+          <FeedbackTab />
         </Tabs.Panel>
       </Tabs>
     </MantineProvider>
