@@ -87,10 +87,10 @@ export default function VideoTab() {
     <Table.Tr key={video.id}>
       <Table.Td w={100}>{video.id}</Table.Td>
       <Table.Td w={100}>
-        <img src={`http://img.youtube.com/vi/${video.videoId}/0.jpg`} height="40" />
+        <img src={`http://img.youtube.com/vi/${video.youtubeVideoId}/0.jpg`} height="40" />
       </Table.Td>
       <Table.Td w={100}>
-        <a href={"https://www.youtube.com/watch?v=" + video.videoId} rel="noreferrer" target="_blank">{video.videoId}</a>
+        <a href={"https://www.youtube.com/watch?v=" + video.youtubeVideoId} rel="noreferrer" target="_blank">{video.youtubeVideoId}</a>
       </Table.Td>
       <Table.Td w={100}>{varietyMap[video.variety] || video.variety}</Table.Td>
       <Table.Td>
@@ -151,7 +151,7 @@ export default function VideoTab() {
           <Table.Tr>
             <SortableTh field='id' sort={sort} setSort={setSort}>ID</SortableTh>
             <Table.Th>Thumbnail</Table.Th>
-            <SortableTh field='videoId' sort={sort} setSort={setSort}>Video ID</SortableTh>
+            <SortableTh field='youtubeVideoId' sort={sort} setSort={setSort}>Video ID</SortableTh>
             <SortableTh field='variety' sort={sort} setSort={setSort}>Variety</SortableTh>
             <Table.Th>Subtitles</Table.Th>
             <Table.Th>Edit</Table.Th>

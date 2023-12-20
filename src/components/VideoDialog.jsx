@@ -18,7 +18,7 @@ export default function VideoDialog({ video, opened, onClose, onSubmit }) {
   useEffect(() => {
     if (video) {
       form.setValues({
-        url: 'https://www.youtube.com/watch?v=' + video.videoId,
+        url: 'https://www.youtube.com/watch?v=' + video.youtubeVideoId,
         variety: video.variety,
         srt: video.srt,
       });
