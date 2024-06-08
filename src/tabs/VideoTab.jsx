@@ -120,7 +120,7 @@ export default function VideoTab() {
         <Group justify="space-between">
           <Button variant="light" color="green" onClick={videoAddingHandlers.open}>Add Video</Button>
           <Group>
-            <Button variant="light" color="blue" onClick={confirmIndexingHandlers.open}>Index</Button>
+            <Button variant="light" color="blue" onClick={confirmIndexingHandlers.open}>Full Reindex</Button>
             <Button variant="light" color="yellow" onClick={statusHandlers.open}>Status</Button>
           </Group>
         </Group>
