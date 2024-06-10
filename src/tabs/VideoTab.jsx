@@ -38,7 +38,9 @@ export default function VideoTab() {
           page: activePage - 1,
           size: pageSize,
           sort: sort.field + ',' + sort.dir,
-          ...filters
+          id: filters.id,
+          videoId: filters.videoId,
+          variety: filters.variety !== "ALL" ? filters.variety : null,
         }
       })
       .then((r) => {
