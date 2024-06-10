@@ -131,8 +131,8 @@ export default function VideoTab() {
           <Text>Page size:</Text>
           <Select
             w={80}
-            defaultValue={10}
-            data={[10, 25, 50, 100]}
+            defaultValue={'10'}
+            data={['10', '25', '50', '100']}
             allowDeselect={false}
             onChange={value => {
               setActivePage(1);
